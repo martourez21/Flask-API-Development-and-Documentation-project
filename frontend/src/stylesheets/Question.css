@@ -6,6 +6,7 @@
 .categories-list {
   flex-basis: 25%;
   flex-shrink: 2;
+  cursor: pointer !important;
 }
 
 .categories-list > form {
@@ -51,7 +52,7 @@
   color: white;
   padding: 3px 5px;
   margin-left: 0px !important;
-  cursor: pointer !important;
+  cursor:pointer !important;
 }
 
 span.page-num {
@@ -69,10 +70,10 @@ span.page-num.active {
 
 img.category {
   width: 30px;
+  cursor: pointer !important;
 }
 
 img.delete {
   width: 20px;
-  cursor: pointer !important;
-
+  cursor:pointer !important;
 }
