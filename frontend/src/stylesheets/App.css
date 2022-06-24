@@ -8,6 +8,9 @@
   padding-right: 40%;
   padding-left: 5%;
 }
+h1, h2{
+  cursor:pointer !important;
+}
 
 .App-header > h1 {
   color: dodgerblue;
