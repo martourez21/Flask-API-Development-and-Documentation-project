@@ -146,7 +146,7 @@ def create_app(test_config=None):
             'questions': current_questions,
             'total_questions': len(selection),
             'current_category': [],
-            'categories': [cat.type for cat in Category.query.all()],
+            'categories': formatted_categories(),
         }), 200
 
 
@@ -339,32 +339,36 @@ def create_app(test_config=None):
 
     # Get a question to play
     @app.route('/quizzes', methods=['POST'])
-    def get_quizzes():
-        # This endpoint should take category and previous question parameters
+    def get_quiz():
         try:
             body = request.get_json()
-            previous_questions = body.get('previous_questions', None)
-            quiz_category = body.get('quiz_category', None)
-            category_id = quiz_category['id']
 
-            if category_id == 0:
-                questions = Question.query.filter(
-                    Question.id.notin_(previous_questions)).all()
+            category = body.get('quiz_category')
+            previous_questions = body.get('previous_questions')
+
+            # If 'ALL' categories is 'clicked', filter available Qs
+            if category['type'] == 'click':
+                available_questions = Question.query.filter(
+                    Question.id.notin_((previous_questions))).all()
+            # Filter available questions by chosen category & unused questions
             else:
-                questions = Question.query.filter(
-                    Question.id.notin_(previous_questions),
-                    Question.category == category_id).all()
-            question = None
-            if(questions):
-                question = random.choice(questions)
+                available_questions = Question.query.filter_by(
+                    category=category['id']).filter(
+                        Question.id.notin_((previous_questions))).all()
+
+            # randomly select next question from available questions
+            new_question = available_questions[random.randrange(
+                0, len(available_questions))].format() if len(
+                    available_questions) > 0 else None
 
             return jsonify({
                 'success': True,
-                'question': question.format()
+                'question': new_question
             })
-
-        except Exception:
+        except:
             abort(422)
+
+
     
     '''
     @TODO:

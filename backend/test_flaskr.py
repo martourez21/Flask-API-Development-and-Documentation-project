@@ -71,7 +71,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'resource not found')
 
     def test_422_delete_question_with_invalid_id(self):
-        res = self.client().delete('/questions/{}'.format(99999999))
+        res = self.client().delete('/questions/{}'.format(77777777))
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 422)
