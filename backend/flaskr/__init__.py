@@ -345,9 +345,9 @@ def create_app(test_config=None):
         question_category = body.get('quiz_category')
         answered_question = body.get('previous_questions')
         try:
-            if question_category['type'] == 'click':
+            if question_category['type'] == '0':
                 question_bank = Question.query.filter(
-                    Question.id.notin_((answered_question))).all()
+                    Question.id.notin_((answered_question))).all() #notin_ function checks if the category id is found in the collection of question categories
             else:
                 question_bank = Question.query.filter_by(
                     category=question_category['id']).filter(Question.id.notin_((answered_question))).all()
