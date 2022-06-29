@@ -339,31 +339,28 @@ def create_app(test_config=None):
 
     # Get a question to play
     @app.route('/quizzes', methods=['POST'])
-    def get_quiz():
+    def play_quizzes():
+        # get the qestion category an the previous question
+        body = request.get_json()
+        question_category = body.get('quiz_category')
+        answered_question = body.get('previous_questions')
         try:
-            body = request.get_json()
-
-            category = body.get('quiz_category')
-            previous_questions = body.get('previous_questions')
-
-            # If 'ALL' categories is 'clicked', filter available Qs
-            if category['type'] == 'click':
-                available_questions = Question.query.filter(
-                    Question.id.notin_((previous_questions))).all()
-            # Filter available questions by chosen category & unused questions
+            if question_category['type'] == 'click':
+                question_bank = Question.query.filter(
+                    Question.id.notin_((answered_question))).all()
             else:
-                available_questions = Question.query.filter_by(
-                    category=category['id']).filter(
-                        Question.id.notin_((previous_questions))).all()
+                question_bank = Question.query.filter_by(
+                    category=question_category['id']).filter(Question.id.notin_((answered_question))).all()
 
-            # randomly select next question from available questions
-            new_question = available_questions[random.randrange(
-                0, len(available_questions))].format() if len(
-                    available_questions) > 0 else None
+            question = question_bank[random.randrange(
+                0, len(question_bank))].format() if len(
+                    question_bank) > 0 else None
 
             return jsonify({
                 'success': True,
-                'question': new_question
+                'code':200,
+                'question': question,
+                'message':'Successfully generated next question'
             })
         except:
             abort(422)
