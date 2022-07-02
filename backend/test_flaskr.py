@@ -54,20 +54,25 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        print("\n######SUCCESS!!#######")
+        
         # Where there is no question, endpoint will return total_questions = 0.
         # To avoid False in that case, use type comparison
         self.assertEqual(type(data['total_questions']), int)
         self.assertEqual(type(data['questions']), list)
         self.assertEqual(type(data['categories']), dict)
         self.assertTrue(type(data['current_category']), str)
-        print("\n######SUCCESS!!#######")
+
+    def test_delete_question(self):
+        res = self.client().get('/questions/21')
+        
+        self.assertEqual(res.status_code, 405)
+    
 
 
     # Try to hit the /questions endpoint with page number out of limit
     # and get the 404 reply
     def test_404_sent_requesting_beyond_valid_page(self):
-        res = self.client().get('/questions?page=7777777')
+        res = self.client().get('/questions?page=77')
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 404)
@@ -75,7 +80,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'resource not found')
     
     def test_422_delete_question_with_invalid_id(self):
-        res = self.client().delete('/questions/{}'.format(77777777))
+        res = self.client().delete('/questions/{}'.format(777))
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 422)
@@ -101,6 +106,21 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'method not allowed')
 
+    def test_400_if_questions_by_category_fails(self):
+        """Tests getting questions by category failure 400"""
+
+        # send request with category id 100
+        response = self.client().get('/categories/10/questions')
+
+        # load response data
+        data = json.loads(response.data)
+
+        # check response status code and message
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'resource not found')
+
+
     # Try to get all questions based on the category
     def test_get_questions_from_category(self):
         res = self.client().get('/categories/2/questions')
@@ -123,7 +143,17 @@ class TriviaTestCase(unittest.TestCase):
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        
+
+    def test_play_quiz_fails(self):
+        """Tests playing quiz game failure 422"""
+        response = self.client().post('/quizzes', json={})
+
+        data = json.loads(response.data)
+        # check response status code and message
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'unprocessable')
+
 
     # Try to search questions
     def test_search_questions(self):

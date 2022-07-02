@@ -17,32 +17,36 @@ def format_questions(all_questions):
     return formatted_questions
 
 # formatting the question by function defined in the class
+
+
 def format_questions(all_questions):
     formatted_questions = [
-    question.format() for question in all_questions]
+        question.format() for question in all_questions]
     return formatted_questions
 
     # function to provide pagination of categories
+
+
 def paginate_categories(request, selection):
     page = request.args.get('page', 1, type=int)
-    start = (page -1) * QUESTIONS_PER_PAGE 
+    start = (page - 1) * QUESTIONS_PER_PAGE
     end = start + QUESTIONS_PER_PAGE
 
     categories = [cat.format() for cat in selection]
     current_category = categories[start:end]
 
     return current_category
+
 
 def paginate_questions(request, selection):
     page = request.args.get('page', 1, type=int)
-    start = (page -1) * QUESTIONS_PER_PAGE 
+    start = (page - 1) * QUESTIONS_PER_PAGE
     end = start + QUESTIONS_PER_PAGE
 
     categories = [cat.format() for cat in selection]
     current_category = categories[start:end]
 
     return current_category
-
 
 
 def create_app(test_config=None):
@@ -137,7 +141,7 @@ def create_app(test_config=None):
         selection = Question.query.order_by(Question.id).all()
         current_questions = paginate_questions(request, selection)
 
-        if len(current_questions)==0:
+        if len(current_questions) == 0:
 
             abort(404)
 
@@ -148,7 +152,6 @@ def create_app(test_config=None):
             'current_category': [],
             'categories': formatted_categories(),
         }), 200
-
 
     '''
     @TODO:
@@ -240,7 +243,6 @@ def create_app(test_config=None):
         except Exception:
             abort(422)
 
-
     '''
     @TODO:
     Create a POST endpoint to get questions based on a search term.
@@ -258,7 +260,7 @@ def create_app(test_config=None):
         body = request.get_json()
         search = body.get('searchTerm')
         questions = Question.query.filter(
-            Question.question.ilike('%'+search+'%')).all()
+            Question.question.ilike('%' + search + '%')).all()
 
         if questions:
             currentQuestions = paginate_questions(request, questions)
@@ -345,12 +347,16 @@ def create_app(test_config=None):
         question_category = body.get('quiz_category')
         answered_question = body.get('previous_questions')
         try:
-            if question_category['type'] == '0':
+            if question_category['type'] == 'click':
+                # notin_ function checks if the category id is found in the
+                # collection of question categories
                 question_bank = Question.query.filter(
-                    Question.id.notin_((answered_question))).all() #notin_ function checks if the category id is found in the collection of question categories
+                    Question.id.notin_((answered_question))).all()
             else:
                 question_bank = Question.query.filter_by(
-                    category=question_category['id']).filter(Question.id.notin_((answered_question))).all()
+                    category=question_category['id']).filter(
+                    Question.id.notin_(
+                        (answered_question))).all()
 
             question = question_bank[random.randrange(
                 0, len(question_bank))].format() if len(
@@ -358,15 +364,13 @@ def create_app(test_config=None):
 
             return jsonify({
                 'success': True,
-                'code':200,
+                'code': 200,
                 'question': question,
-                'message':'Successfully generated next question'
+                'message': 'Successfully generated next question'
             })
-        except:
+        except BaseException:
             abort(422)
 
-
-    
     '''
     @TODO:
     Create error handlers for all expected errors
